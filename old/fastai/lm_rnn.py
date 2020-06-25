@@ -4,6 +4,7 @@ from .torch_imports import *
 from .rnn_reg import LockedDropout,WeightDrop,EmbeddingDropout
 from .model import Stepper
 from .core import set_grad_enabled
+import numpy as np
 
 IS_TORCH_04 = LooseVersion(torch.__version__) >= LooseVersion('0.4')
 
@@ -189,6 +190,11 @@ class PoolingLinearClassifier(nn.Module):
         avgpool = self.pool(output, bs, False)
         mxpool = self.pool(output, bs, True)
         x = torch.cat([output[-1], mxpool, avgpool], 1)
+
+        # save embeddings
+        for ii, oo in enumerate(outputs):
+            np.save('/tmp/fastai_embeddings-%d.npy' % ii, oo.numpy()) 
+
         for l in self.layers:
             l_x = l(x)
             x = F.relu(l_x)
